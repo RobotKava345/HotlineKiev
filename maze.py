@@ -14,7 +14,7 @@ FONT = 'PressStart2P-Regular.ttf'
 
 FPS = 60
 TILE_SIZE = 40
-MAP_WIDTH, MAP_HEIGHT = 40, 26
+MAP_WIDTH, MAP_HEIGHT = 40, 35
 WIDTH, HEIGHT = TILE_SIZE*MAP_WIDTH, TILE_SIZE*MAP_HEIGHT
 
 #створи вікно гри
@@ -24,14 +24,14 @@ clock = time.Clock()
 
 
 #задай фон сцени
-bg = image.load("StoneFloorTexture.png")
+bg = image.load("using images/Bg.png")
 bg = transform.scale(bg, (WIDTH, HEIGHT))
-player_img = image.load("hero.png")
-floor1_img = image.load("using images/floor_1.png")
+player_img = image.load("using images/y1y-ThQx (1) 1 (1).png")
+floor1_img = image.load("using images/floor_1 (1).png")
 empty_img = image.load("using images/empty.png")
 enemy_img = image.load("cyborg.png")
 treasure_img = image.load("treasure.png")
-coin_img = image.load("gold-coin-7023965_1280-removebg-preview.png")
+
 all_labels = sprite.Group()
 all_sprites = sprite.Group()
 #створи 2 спрайти та розмісти їх на сцені
@@ -68,7 +68,7 @@ class Player(BaseSprite):
         self.right_image = self.image
         self.left_image = transform.flip(self.image,True, False)
         self.damage_timer = time.get_ticks()       
-        self.speed = 5
+        self.speed = 15
         self.hp = 100
         self.coins_counter = 0
 
@@ -133,7 +133,7 @@ class Enemy(BaseSprite):
             #self.dir = random.choice(self.dir_list)
         
 
-player1 = Player(player_img,200,300, TILE_SIZE-5, TILE_SIZE-5)
+player1 = Player(player_img,200,300, 80, 80)
 all_sprites.remove(player1)
 
 result = Label("", 300, 300, fontsize=60)
@@ -192,8 +192,19 @@ def game_start():
             y+= TILE_SIZE
 
 
+    with open("map2.txt", "r") as file:
+        map = file.readlines()
+        x, y = 0,0
+        for row in map:
+            for symbol in row:
 
+                if symbol=='W':
+                    floors.add(BaseSprite(floor1_img, x, y, TILE_SIZE, TILE_SIZE))
+                
 
+                x+=TILE_SIZE
+            x = 0    
+            y+= TILE_SIZE
     
 game_start()
 while run:
