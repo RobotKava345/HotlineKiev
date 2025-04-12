@@ -6,19 +6,22 @@ font.init()
 mixer.init()
 
 
-kick_sound = mixer.Sound('kick.ogg')
-kick_sound.set_volume(0.5)
-money_sound = mixer.Sound('money.ogg')
+# kick_sound = mixer.Sound('kick.ogg')
+# kick_sound.set_volume(0.5)
+#money_sound = mixer.Sound('money.ogg')
 
 FONT = 'PressStart2P-Regular.ttf'
 
 FPS = 60
 TILE_SIZE = 40
 MAP_WIDTH, MAP_HEIGHT = 40, 35
-WIDTH, HEIGHT = TILE_SIZE*MAP_WIDTH, TILE_SIZE*MAP_HEIGHT
+scr_info= display.Info()
+
+
+WIDTH, HEIGHT = scr_info.current_w, scr_info.current_h
 
 #створи вікно гри
-window = display.set_mode((WIDTH,HEIGHT))
+window = display.set_mode((WIDTH,HEIGHT), flags=FULLSCREEN)
 display.set_caption("Catch_up")
 clock = time.Clock()
 
@@ -27,9 +30,13 @@ clock = time.Clock()
 bg = image.load("using images/Bg.png")
 bg = transform.scale(bg, (WIDTH, HEIGHT))
 player_img = image.load("using images/y1y-ThQx (1) 1 (1).png")
-floor1_img = image.load("using images/floor_1 (1).png")
-empty_img = image.load("using images/empty.png")
-enemy_img = image.load("cyborg.png")
+floor1_img = image.load("using images/floor_1.png")
+floor2_img = image.load("using images/floor_2.png")
+floor3_img = image.load("using images/floor_3 (3).png")
+floor4_img = image.load("using images/floor_4.png")
+floor5_img = image.load("using images/floor_5.png")
+floor6_img = image.load("using images/floor_6.png")
+#enemy_img = image.load("cyborg.png")
 treasure_img = image.load("treasure.png")
 
 all_labels = sprite.Group()
@@ -60,7 +67,11 @@ class Label(sprite.Sprite):
     def set_text(self, new_text, color = (255, 255, 255)):
         self.image = self.font.render(new_text, True, color)
 
+def move_map(shift_x= 0, shift_y=0):
 
+    for s in all_sprites:
+        s.rect.x += shift_x
+        s.rect.y += shift_y
 
 class Player(BaseSprite):
     def __init__(self, image, x, y, width, height):
@@ -78,31 +89,43 @@ class Player(BaseSprite):
 
 
     def update(self):
-        old_pos = self.rect.x, self.rect.y
+        shift_x, shift_y = 0, 0
         keys = key.get_pressed()
+
         if keys[K_a]:
-            self.rect.x -=self.speed
-            self.image = self.left_image
+            if self.rect.x <= WIDTH / 2:
+                shift_x += self.speed 
+            else:
+                self.rect.x -= self.speed
         if keys[K_d]:
-           self.rect.x +=self.speed
-           self.image = self.right_image
+            if self.rect.x >= WIDTH / 2:
+                shift_x -= self.speed
+            else:
+                self.rect.x += self.speed
         if keys[K_w]:
-            self.rect.y -=self.speed
+            if self.rect.y <= HEIGHT / 3:
+                shift_y += self.speed
+            else:
+                self.rect.y -= self.speed
         if keys[K_s]:
-            self.rect.y +=self.speed
+            if self.rect.y >= HEIGHT / 3:
+                shift_y -= self.speed
+            else:
+                self.rect.y += self.speed
+        move_map(shift_x, shift_y)
 
 
 
-        coll_list = sprite.spritecollide(self, enemys, False, sprite.collide_mask)
-        if len(coll_list)>0:
-            now = time.get_ticks()
-            if now - self.damage_timer > 1500:
-                self.damage_timer = time.get_ticks()
-                self.hp -=10
-                hp_label.set_text(f"HP:{self.hp}")
-                kick_sound.play()
+        # coll_list = sprite.spritecollide(self, enemys, False, sprite.collide_mask)
+        # if len(coll_list)>0:
+        #     now = time.get_ticks()
+        #     if now - self.damage_timer > 1500:
+        #         self.damage_timer = time.get_ticks()
+        #         self.hp -=10
+        #         hp_label.set_text(f"HP:{self.hp}")
+        #         kick_sound.play()
             
-            self.rect.x, self.rect.y = old_pos
+        #     self.rect.x, self.rect.y = old_pos
             
 
 
@@ -133,7 +156,7 @@ class Enemy(BaseSprite):
             #self.dir = random.choice(self.dir_list)
         
 
-player1 = Player(player_img,200,300, 80, 80)
+player1 = Player(player_img,200,300, 60, 60)
 all_sprites.remove(player1)
 
 result = Label("", 300, 300, fontsize=60)
@@ -167,7 +190,22 @@ def game_start():
 
                 if symbol=='F':
                     floors.add(BaseSprite(floor1_img, x, y, TILE_SIZE, TILE_SIZE))
+
+                if symbol=='V':
+                    floors.add(BaseSprite(floor2_img, x, y, TILE_SIZE, TILE_SIZE))
                 
+                if symbol=='1':
+                    floors.add(BaseSprite(floor3_img, x, y, TILE_SIZE, TILE_SIZE))                
+                
+                if symbol=='2':
+                    floors.add(BaseSprite(floor4_img, x, y, TILE_SIZE, TILE_SIZE))
+                              
+                if symbol=='3':
+                    floors.add(BaseSprite(floor5_img, x, y, TILE_SIZE, TILE_SIZE))
+
+                if symbol=='4':
+                    floors.add(BaseSprite(floor6_img, x, y, TILE_SIZE, TILE_SIZE))
+
                 if symbol == 'P':
                     player1.rect.x = x
                     player1.rect.y = y
@@ -205,7 +243,8 @@ def game_start():
                 x+=TILE_SIZE
             x = 0    
             y+= TILE_SIZE
-    
+    move_map(0,-500)
+    player1.rect.y -= 500
 game_start()
 while run:
     for e in event.get():
