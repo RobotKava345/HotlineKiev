@@ -1,14 +1,13 @@
-#створи гру "Лабіринт"!
+
 from pygame import *
-import random 
+import random
+import math
 init()
 font.init()
 mixer.init()
 
 
-# kick_sound = mixer.Sound('kick.ogg')
-# kick_sound.set_volume(0.5)
-#money_sound = mixer.Sound('money.ogg')
+
 
 FONT = 'PressStart2P-Regular.ttf'
 
@@ -26,6 +25,7 @@ display.set_caption("Catch_up")
 clock = time.Clock()
 
 
+
 #задай фон сцени
 bg = image.load("using images/Bg.png")
 bg = transform.scale(bg, (WIDTH, HEIGHT))
@@ -36,6 +36,17 @@ floor3_img = image.load("using images/floor_3 (3).png")
 floor4_img = image.load("using images/floor_4.png")
 floor5_img = image.load("using images/floor_5.png")
 floor6_img = image.load("using images/floor_6.png")
+left_wall_img = image.load("using images/left_wall (3).png")
+right_wall_img = image.load("using images/right_wall (1).png")
+top_wall_img = image.load("using images/top_wall (2).png")
+bottom_wall_img = image.load("using images/bottom_wall (4).png")
+
+
+
+
+
+
+ 
 #enemy_img = image.load("cyborg.png")
 treasure_img = image.load("treasure.png")
 
@@ -73,6 +84,9 @@ def move_map(shift_x= 0, shift_y=0):
         s.rect.x += shift_x
         s.rect.y += shift_y
 
+
+
+
 class Player(BaseSprite):
     def __init__(self, image, x, y, width, height):
         super().__init__(image, x, y, width, height)
@@ -80,6 +94,7 @@ class Player(BaseSprite):
         self.left_image = transform.flip(self.image,True, False)
         self.damage_timer = time.get_ticks()       
         self.speed = 15
+        self.original_image = self.image
         self.hp = 100
         self.coins_counter = 0
 
@@ -114,8 +129,6 @@ class Player(BaseSprite):
                 self.rect.y += self.speed
         move_map(shift_x, shift_y)
 
-
-
         # coll_list = sprite.spritecollide(self, enemys, False, sprite.collide_mask)
         # if len(coll_list)>0:
         #     now = time.get_ticks()
@@ -126,6 +139,23 @@ class Player(BaseSprite):
         #         kick_sound.play()
             
         #     self.rect.x, self.rect.y = old_pos
+
+
+        self.rotate()
+    
+
+
+    def rotate(self):
+        mouse_x, mouse_y = mouse.get_pos()
+        player_x = self.rect.centerx
+        player_y = self.rect.centery
+        angle = math.atan2(mouse_y-player_y, mouse_x-player_x)
+        self.image = transform.rotate(self.original_image, -math.degrees(angle))
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.mask = mask.from_surface(self.image)
+
+
+        
             
 
 
@@ -165,7 +195,7 @@ all_labels.remove(restart_text)
 hp_label = Label(f"HP:{player1.hp}", 10, 10, fontsize=20)
 floors = sprite.Group()
 enemys = sprite.Group()
-emptys = sprite.Group()
+walls = sprite.Group()
 def game_start():
     global treasure, run, finish
     for floor1 in floors:
@@ -236,8 +266,8 @@ def game_start():
         for row in map:
             for symbol in row:
 
-                if symbol=='W':
-                    floors.add(BaseSprite(floor1_img, x, y, TILE_SIZE, TILE_SIZE))
+                if symbol=='1':
+                    walls.add(BaseSprite(top_wall_img, x, y, TILE_SIZE, TILE_SIZE))
                 
 
                 x+=TILE_SIZE
